@@ -9,13 +9,14 @@ else{
     $pid=intval($_GET['id']);
     if(isset($_POST['submit']))
     {
+        $CodigoBarras=$_POST['CodigoBarras'];
         $category=$_POST['category'];
         $subcategory=$_POST['subcategory'];
         $Nombre_pro=$_POST['Nombre_pro'];
         $Marca_pro=$_POST['Marca_pro'];
         $Precio_Venta=$_POST['Precio_Venta'];
             
-        $sqlUPDATE="UPDATE Productos SET Categoria='$category',SubCategoria='$subcategory',Nombre_pro='$Nombre_pro',Marca='$Marca_pro',Precio='$Precio_Venta' WHERE id='$pid' ";
+        $sqlUPDATE="UPDATE Productos SET CodigoBarras='$CodigoBarras' ,Categoria='$category',SubCategoria='$subcategory',Nombre_pro='$Nombre_pro',Marca='$Marca_pro',Precio='$Precio_Venta' WHERE id='$pid' ";
         if (!mysqli_query($conexion,$sqlUPDATE))
         {
             die('Error: ' . mysqli_error($conexion));
@@ -75,6 +76,31 @@ else{
         }
     </script>
 
+    <script>
+        function getProductos(val) {
+            var id_cate = $("#category").val();
+            var id_sub = $("#subcategory").val();
+            var id_provee = $("#proveedores").val();
+            $.ajax({
+                type: "POST",
+                url: "Get_Productos.php",
+                data: {
+                    IDCATE: id_cate,
+                    IDSUB: id_sub,
+                    IDPRO: id_provee
+                },
+                success: function (data) {
+                    $("#dataTable").html(data);
+                }
+            });
+        }
+
+        function selectCountry(val) {
+            $("#search-box").val(val);
+            $("#suggesstion-box").hide();
+        }
+    </script>
+
 </head>
 
 <body id="page-top">
@@ -112,14 +138,31 @@ else{
 
                             <?php 
 
-                            $query=mysqli_query($conexion,"SELECT Productos.*,Categoria.Nombre AS catname,Categoria.id as cid,Subcategoria.Nombre_sub as subcatname,Subcategoria.id AS subcatid FROM Productos JOIN Categoria on Categoria.id=Productos.Categoria JOIN Subcategoria ON Subcategoria.id=Productos.SubCategoria WHERE Productos.id='$pid'");
+                            $query=mysqli_query($conexion,"SELECT Productos.*,Categoria.Nombre AS catname,
+                                                                  Categoria.id as cid,
+                                                                  Subcategoria.Nombre_sub as subcatname,
+                                                                  Subcategoria.id AS subcatid,
+                                                                  proveedores.Nombre_provedor AS provname,
+                                                                  proveedores.id AS provid
+                                                                  FROM Productos 
+                                                                  JOIN Categoria on Categoria.id=Productos.Categoria 
+                                                                  JOIN Subcategoria ON Subcategoria.id=Productos.SubCategoria
+                                                                  JOIN proveedores ON proveedores.id=Productos.Nombre_proveedor 
+                                                                  WHERE Productos.id='$pid'");
                             while($row=mysqli_fetch_array($query))
                             {                      
                         ?>
 
                             <div class="form-group">
+                                <label>Codigo de barras <span class="text-danger">*</span></label>
+                                <input type="text" name="CodigoBarras" id="CodigoBarras" class="form-control"
+                                    placeholder="Codigo de barras"
+                                    value="<?php echo htmlentities($row['CodigoBarras']);?>" required>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Categoria <span class="text-danger">*</span></label>
-                                <select name="category" class="form-control" onChange="getSubcat(this.value);" required>
+                                <select name="category" id="category" class="form-control" onChange="getSubcat(this.value);" required>
                                     <option value="<?php echo htmlentities($row['cid']);?>"><?php echo htmlentities($row['catname']);?></option> 
                                     <?php $query2=mysqli_query($conexion,"SELECT * FROM Categoria");
                                 while($rw=mysqli_fetch_array($query2))
@@ -141,8 +184,17 @@ else{
                             <div class="form-group">
                                 <label>SubCategoria <span class="text-danger">*</span></label>
                                 <div class="controls">
-                                    <select  class="form-control" id="subcategory" name="subcategory" class="span8 tip" required>
+                                    <select  class="form-control" id="subcategory" name="subcategory" class="span8 tip" onChange="getProveedores(this.value);" required>
                                         <option value="<?php echo htmlentities($row['subcatid']);?>"><?php echo htmlentities($row['subcatname']);?></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nombre del proveedor <span class="text-danger">*</span></label>
+                                <div class="controls">
+                                    <select  class="form-control" id="Nombre_proveedor" name="Nombre_proveedor" class="span8 tip" required>
+                                        <option value="<?php echo htmlentities($row['provid']);?>"><?php echo htmlentities($row['provname']);?></option>
                                     </select>
                                 </div>
                             </div>
@@ -167,6 +219,9 @@ else{
                                     placeholder="Precio de venta" value="<?php echo htmlentities($row['Precio']);?>"
                                     required>
                             </div>
+
+                            
+
                             <?php } ?>
                             <div class="form-group">
                                 <button type="submit" name="submit" class="btn btn-primary btn-icon-split btn-sm">

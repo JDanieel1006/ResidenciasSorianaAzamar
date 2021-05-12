@@ -9,31 +9,27 @@ else{
 
 if(isset($_POST['submit']))
 {
-    
-    $Codigo_barras=$_POST['Codigo_barras'];
-    $category=$_POST['category'];
-    $subcategory=$_POST['subcategory'];
-    $Nombre_pro=$_POST['Nombre_pro'];
-    $Marca_pro=$_POST['Marca_pro'];
-    $Precio_Venta=$_POST['Precio_Venta'];
-    $proveedores=$_POST['proveedores'];
-    $Query  = "INSERT INTO Productos(CodigoBarras,Categoria,SubCategoria,Nombre_pro,Marca,Precio,Stock,Nombre_proveedor) values('$Codigo_barras','$category','$subcategory','$Nombre_pro','$Marca_pro','$Precio_Venta','0','$proveedores')";
-    if (!mysqli_query($conexion,$Query))
+    $StockNew=$_POST['StockNew'];
+    $id=intval($_GET['id']);
+    $sql = "UPDATE productos SET Stock = Stock + '$StockNew' WHERE id='$id'";
+    if (!mysqli_query($conexion,$sql))
     {
         die('Error: ' . mysqli_error($conexion));
     } 
     else
     {
-        echo "<script>if(confirm('Producto guardado')){
-            document.location='Productos.php';}
+        echo "<script>if(confirm('Stock añadido')){
+            document.location='Stock.php';}
             else{ alert('Operacion Cancelada');
             }</script>"; 
     }
 
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
     <meta charset="utf-8">
@@ -56,46 +52,6 @@ if(isset($_POST['submit']))
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- jQuery 3 -->
     <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script>
-        function getSubcat(val) {
-            $.ajax({
-                type: "POST",
-                url: "Get_SubCategoria.php",
-                data: 'cat_id=' + val,
-                success: function (data) {
-                    $("#subcategory").html(data);
-                }
-            });
-        }
-
-        function selectCountry(val) {
-            $("#search-box").val(val);
-            $("#suggesstion-box").hide();
-        }
-    </script>
-    <script>
-        function getProveedores(val) {
-            var id_cate = $("#category").val();
-            var id_sub = $("#subcategory").val();
-            $.ajax({
-                type: "POST",
-                url: "Get_Proveedor.php",
-                data: {
-                    IDCATE: id_cate,
-                    IDSUB: id_sub
-                },
-                success: function (data) {
-                    $("#proveedores").html(data);
-                }
-            });
-        }
-
-        function selectCountry(val) {
-            $("#search-box").val(val);
-            $("#suggesstion-box").hide();
-        }
-    </script>
- 	
 </head>
 
 <body id="page-top">
@@ -121,7 +77,7 @@ if(isset($_POST['submit']))
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Productos</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Categoria</h1>
                     </div>
 
 
@@ -130,61 +86,29 @@ if(isset($_POST['submit']))
 
                     <div>
                         <form class="form-horizontal row-fluid" name="Category" method="post">
-
-                            <div class="form-group">
-                                <label>Categoria <span class="text-danger">*</span></label>
-                                <select name="category" id="category"  class="form-control" onChange="getSubcat(this.value);"  required>
-                                <option value="">Seleccione categoria</option> 
-                                <?php $query=mysqli_query($conexion,"SELECT * FROM Categoria");
-                                while($row=mysqli_fetch_array($query))
-                                {?>
-
-                                <option value="<?php echo $row['id'];?>"><?php echo $row['Nombre'];?></option>
-                                <?php } ?>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>SubCategoria <span class="text-danger">*</span></label>
-                                <div class="controls">
-                                    <select class="form-control" name="subcategory"  id="subcategory" class="span8 tip" onChange="getProveedores(this.value);" required>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Proveedor <span class="text-danger">*</span></label>
-                                <div class="controls">
-                                    <select class="form-control" name="proveedores" id="proveedores" class="span8 tip"
-                                         required>
-                                    </select>
-                                </div>
-                            </div>
-
+                        <?php
+                            $id=intval($_GET['id']);
+                            $query=mysqli_query($conexion,"SELECT * FROM productos where id='$id'");
+                            while($row=mysqli_fetch_array($query))
+                            {
+                        ?>	
                             <div class="form-group">
                                 <label>Codigo de barras <span class="text-danger">*</span></label>
-                                <input type="text" name="Codigo_barras" id="Codigo_barras" class="form-control"
-                                    placeholder="Codigo de barras" required>
+                                <input type="text" name="CodigoBarras" id="CodigoBarras" class="form-control" readonly="readonly" value="<?php echo  htmlentities($row['CodigoBarras']);?>">
                             </div>
-
                             <div class="form-group">
-                                <label>Nombre del producto <span class="text-danger">*</span></label>
-                                <input type="text" name="Nombre_pro" id="Nombre_pro" class="form-control"
-                                    placeholder="Nombre del producto" required>
+                                <label>Nombre producto <span class="text-danger">*</span></label>
+                                <input type="text" name="Nombre_pro" id="Nombre_pro" class="form-control" readonly="readonly" value="<?php echo  htmlentities($row['Nombre_pro']);?>">
                             </div>
-
                             <div class="form-group">
-                                <label>Marca del producto <span class="text-danger">*</span></label>
-                                <input type="text" name="Marca_pro" id="Marca_pro" class="form-control"
-                                    placeholder="Marca del producto" required>
+                                <label>Stock actual <span class="text-danger">*</span></label>
+                                <input type="number" name="StockOld" id="StockOld" class="form-control"  readonly="readonly" value="<?php echo  htmlentities($row['Stock']);?>">
                             </div>
-
                             <div class="form-group">
-                                <label>Precio de venta <span class="text-danger">*</span></label>
-                                <input type="text" name="Precio_Venta" id="Precio_Venta" class="form-control"
-                                    placeholder="Precio de venta" required>
+                                <label>Stock a añadir <span class="text-danger">*</span></label>
+                                <input type="number" name="StockNew" id="StockNew" class="form-control" placeholder="Stock a añadir" >
                             </div>
-
+                        <?php } ?>	           
                             <div class="form-group">
                                 <button type="submit" name="submit"  class="btn btn-primary btn-icon-split btn-sm">
                                         <span class="icon text-white-50">
@@ -195,6 +119,7 @@ if(isset($_POST['submit']))
                             </div>
                         </form>
                     </div>
+
                 </div>
                 <!-- /.container-fluid -->
 

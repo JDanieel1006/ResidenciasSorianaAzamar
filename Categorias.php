@@ -113,7 +113,7 @@ if(isset($_GET['del']))
                     </div>
 
                     <div class="container-fliud">
-                        <!-- DataTales Example -->
+                        <!-- DataTales CATEGORIAS -->
                         <div class="card shadow mb-4">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">DataTables Categorias</h6>
@@ -136,8 +136,8 @@ if(isset($_GET['del']))
                                             </tr>
                                         </tfoot>
                                         <tbody>
-                                        <?php $query=mysqli_query($conexion,"SELECT * FROM categoria");
-                                        $cnt=1;
+                                        <?php
+                                         $query=mysqli_query($conexion,"SELECT * FROM categoria");
                                         while($row=mysqli_fetch_array($query))
                                         {
                                         ?>		

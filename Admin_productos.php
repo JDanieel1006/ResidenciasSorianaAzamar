@@ -58,16 +58,42 @@ else{
             $("#suggesstion-box").hide();
         }
     </script>
+
+    <script>
+        function getProveedores(val) {
+            var id_cate = $("#category").val();
+            var id_sub = $("#subcategory").val();
+            $.ajax({
+                type: "POST",
+                url: "Get_Proveedor.php",
+                data: {
+                    IDCATE: id_cate,
+                    IDSUB: id_sub
+                },
+                success: function (data) {
+                    $("#proveedores").html(data);
+                }
+            });
+        }
+
+        function selectCountry(val) {
+            $("#search-box").val(val);
+            $("#suggesstion-box").hide();
+        }
+    </script>
+
     <script>
         function getProductos(val) {
             var id_cate = $("#category").val();
             var id_sub = $("#subcategory").val();
+            var id_provee = $("#proveedores").val();
             $.ajax({
                 type: "POST",
                 url: "Get_Productos.php",
                 data: {
                     IDCATE: id_cate,
-                    IDSUB: id_sub
+                    IDSUB: id_sub,
+                    IDPRO: id_provee
                 },
                 success: function (data) {
                     $("#dataTable").html(data);
@@ -80,6 +106,8 @@ else{
             $("#suggesstion-box").hide();
         }
     </script>
+
+
 </head>
 
 <body id="page-top">
@@ -106,7 +134,7 @@ else{
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Administracion de productos</h1>
-                        <button  id="btnExport"  class="btn btn-success btn-lg">Generar PDF</button>
+                        <button id="btnExport" class="btn btn-success btn-lg">Generar PDF</button>
                     </div>
 
                     <div>
@@ -129,6 +157,15 @@ else{
                                 <label>SubCategoria <span class="text-danger">*</span></label>
                                 <div class="controls">
                                     <select class="form-control" name="subcategory" id="subcategory" class="span8 tip"
+                                        onChange="getProveedores(this.value);" required>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Proveedor <span class="text-danger">*</span></label>
+                                <div class="controls">
+                                    <select class="form-control" name="proveedores" id="proveedores" class="span8 tip"
                                         onChange="getProductos(this.value);" required>
                                     </select>
                                 </div>
@@ -147,6 +184,26 @@ else{
                                 <div class="table-responsive">
                                     <table class="table table-bordered" id="dataTable" name="dataTable" width="100%"
                                         cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th>Sub Categoria</th>
+                                                <th>Nombre del producto</th>
+                                                <th>Marca</th>
+                                                <th>Proveedor</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th>Sub Categoria</th>
+                                                <th>Nombre del producto</th>
+                                                <th>Marca</th>
+                                                <th>Proveedor</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
 
                                     </table>
                                 </div>
@@ -234,34 +291,38 @@ else{
     </script>
     <!-- pdfmake -->
 
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-  <script>
-   $("body").on("click", "#btnExport", function () {
-              html2canvas($('#dataTable')[0], {
-                  onrendered: function (canvas) {
-                      var data = canvas.toDataURL();
-                      var docDefinition = {
-                          content: [
-                          { text: 'REPORTE DE PRODUCTOS', style: 'header' },
-                          {
-                              image: data,
-                              width: 500
-                          }],
-                          styles: {
-                            header: {
-                              fontSize: 22,
-                              bold: true,
-                              alignment: 'center'
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+    <script>
+        $("body").on("click", "#btnExport", function () {
+            html2canvas($('#dataTable')[0], {
+                onrendered: function (canvas) {
+                    var data = canvas.toDataURL();
+                    var docDefinition = {
+                        content: [{
+                                text: 'REPORTE DE PRODUCTOS',
+                                style: 'header'
+                            },
+                            {
+                                image: data,
+                                width: 500
                             }
-                          }
-                      };
-                      pdfMake.createPdf(docDefinition).download("customer-details.pdf");
-                  }
-              });
-          });
-  </script>
+                        ],
+                        styles: {
+                            header: {
+                                fontSize: 22,
+                                bold: true,
+                                alignment: 'center'
+                            }
+                        }
+                    };
+                    pdfMake.createPdf(docDefinition).download("customer-details.pdf");
+                }
+            });
+        });
+    </script>
 
 
 </body>

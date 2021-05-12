@@ -59,6 +59,20 @@
     </div>
 </li>
 
+<!-- Nav Item - Proveedor -->
+<li class="nav-item active">
+    <a class="nav-link" href="Proveedor.php">
+        <i class="fas fa-truck-loading"></i>
+        <span>Proveedor</span></a>
+</li>
+
+<!-- Nav Item - Stock -->
+<li class="nav-item active">
+    <a class="nav-link" href="Stock.php">
+        <i class="fas fa-boxes"></i>
+        <span>Stock</span></a>
+</li>
+
 <!-- Divider -->
 <hr class="sidebar-divider d-none d-md-block">
 

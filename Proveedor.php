@@ -9,31 +9,33 @@ else{
 
 if(isset($_POST['submit']))
 {
-    
-    $Codigo_barras=$_POST['Codigo_barras'];
+	$Nombre=$_POST['Nombre'];
     $category=$_POST['category'];
     $subcategory=$_POST['subcategory'];
-    $Nombre_pro=$_POST['Nombre_pro'];
-    $Marca_pro=$_POST['Marca_pro'];
-    $Precio_Venta=$_POST['Precio_Venta'];
-    $proveedores=$_POST['proveedores'];
-    $Query  = "INSERT INTO Productos(CodigoBarras,Categoria,SubCategoria,Nombre_pro,Marca,Precio,Stock,Nombre_proveedor) values('$Codigo_barras','$category','$subcategory','$Nombre_pro','$Marca_pro','$Precio_Venta','0','$proveedores')";
+    $Query  = "INSERT INTO proveedores(Categoria,Subcategoria,Nombre_provedor) values('$category','$subcategory','$Nombre')";
     if (!mysqli_query($conexion,$Query))
     {
         die('Error: ' . mysqli_error($conexion));
     } 
     else
     {
-        echo "<script>if(confirm('Producto guardado')){
-            document.location='Productos.php';}
+        echo "<script>if(confirm('proveedores guardado')){
+            document.location='Proveedor.php';}
             else{ alert('Operacion Cancelada');
             }</script>"; 
     }
 
 }
+
+    if(isset($_GET['del']))
+	{
+		mysqli_query($conexion,"DELETE FROM proveedores where id = '".$_GET['id']."'");
+	}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
     <meta charset="utf-8">
@@ -56,6 +58,7 @@ if(isset($_POST['submit']))
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- jQuery 3 -->
     <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
     <script>
         function getSubcat(val) {
             $.ajax({
@@ -73,29 +76,6 @@ if(isset($_POST['submit']))
             $("#suggesstion-box").hide();
         }
     </script>
-    <script>
-        function getProveedores(val) {
-            var id_cate = $("#category").val();
-            var id_sub = $("#subcategory").val();
-            $.ajax({
-                type: "POST",
-                url: "Get_Proveedor.php",
-                data: {
-                    IDCATE: id_cate,
-                    IDSUB: id_sub
-                },
-                success: function (data) {
-                    $("#proveedores").html(data);
-                }
-            });
-        }
-
-        function selectCountry(val) {
-            $("#search-box").val(val);
-            $("#suggesstion-box").hide();
-        }
-    </script>
- 	
 </head>
 
 <body id="page-top">
@@ -112,7 +92,6 @@ if(isset($_POST['submit']))
             <!-- Main Content -->
             <div id="content">
 
-                <!-- Topbar -->
                 <?php include("NavHeader.php"); ?>
                 <!-- End of Topbar -->
 
@@ -121,7 +100,7 @@ if(isset($_POST['submit']))
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Productos</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Proveedores</h1>
                     </div>
 
 
@@ -130,10 +109,9 @@ if(isset($_POST['submit']))
 
                     <div>
                         <form class="form-horizontal row-fluid" name="Category" method="post">
-
                             <div class="form-group">
                                 <label>Categoria <span class="text-danger">*</span></label>
-                                <select name="category" id="category"  class="form-control" onChange="getSubcat(this.value);"  required>
+                                <select name="category"  class="form-control" onChange="getSubcat(this.value);"  required>
                                 <option value="">Seleccione categoria</option> 
                                 <?php $query=mysqli_query($conexion,"SELECT * FROM Categoria");
                                 while($row=mysqli_fetch_array($query))
@@ -147,42 +125,15 @@ if(isset($_POST['submit']))
                             <div class="form-group">
                                 <label>SubCategoria <span class="text-danger">*</span></label>
                                 <div class="controls">
-                                    <select class="form-control" name="subcategory"  id="subcategory" class="span8 tip" onChange="getProveedores(this.value);" required>
+                                    <select class="form-control" name="subcategory"  id="subcategory" class="span8 tip" required>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label>Proveedor <span class="text-danger">*</span></label>
-                                <div class="controls">
-                                    <select class="form-control" name="proveedores" id="proveedores" class="span8 tip"
-                                         required>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Codigo de barras <span class="text-danger">*</span></label>
-                                <input type="text" name="Codigo_barras" id="Codigo_barras" class="form-control"
-                                    placeholder="Codigo de barras" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Nombre del producto <span class="text-danger">*</span></label>
-                                <input type="text" name="Nombre_pro" id="Nombre_pro" class="form-control"
-                                    placeholder="Nombre del producto" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Marca del producto <span class="text-danger">*</span></label>
-                                <input type="text" name="Marca_pro" id="Marca_pro" class="form-control"
-                                    placeholder="Marca del producto" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Precio de venta <span class="text-danger">*</span></label>
-                                <input type="text" name="Precio_Venta" id="Precio_Venta" class="form-control"
-                                    placeholder="Precio de venta" required>
+                                <label>Nombre <span class="text-danger">*</span></label>
+                                <input type="text" name="Nombre" id="Nombre" class="form-control"
+                                    placeholder="Nombre proveedor" required>
                             </div>
 
                             <div class="form-group">
@@ -195,6 +146,58 @@ if(isset($_POST['submit']))
                             </div>
                         </form>
                     </div>
+
+                    <div class="container-fliud">
+                        <!-- DataTales CATEGORIAS -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">DataTables Proveedores</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th>Sub Categoria</th>
+                                                <th>Proveedor</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th>Sub Categoria</th>
+                                                <th>Proveedor</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                        <tbody>
+                                        <?php
+                                         $query=mysqli_query($conexion,"SELECT proveedores.*,Categoria.Nombre,SubCategoria.Nombre_sub FROM proveedores JOIN Categoria on Categoria.id=proveedores.Categoria JOIN Subcategoria ON Subcategoria.id=proveedores.Subcategoria");
+                                        while($row=mysqli_fetch_array($query))
+                                        {
+                                        ?>		
+                                            <tr>
+                                            <td><?php echo htmlentities($row['Nombre']);?></td>
+                                            <td><?php echo htmlentities($row['Nombre_sub']);?></td>
+                                            <td><?php echo htmlentities($row['Nombre_provedor']);?></td>
+                                            <td>
+                                                <a href="Categorias_edit.php?id=<?php echo $row['id']?>" class="d-sm-inline-block btn btn-sm btn-warning shadow-sm"><i class="fas fa-edit fa-sm"></i></a>
+											    <a href="Categorias.php?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Esta seguro que desea eliminar ?')" class="d-sm-inline-block btn btn-sm btn-danger shadow-sm"><i class="fas fa-trash fa-sm"></i></a>
+                                            </td>
+                                            </td>
+                                            </tr>
+                                        <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
                 </div>
                 <!-- /.container-fluid -->
 
